@@ -4,8 +4,12 @@ import matplotlib.pyplot as plt
 from colorama import Fore, Style, init
 
 
-n = 12      #(for now don't exceed mesh size more than 12)
+upperlimit = 1
+lowerlimit = 0
+h = 0.1
 
+n = int((upperlimit-lowerlimit)/h)      #(for now dont exceed mesh size more than 12)
+print(n)
 # mesh genration with no initial value
 mesh = []
 for i in range(0,n,1):
@@ -26,7 +30,7 @@ print("")
 Xh[0,:] = 70              # selects the entire first row of the mesh
 Xh[n-1, :] = 70           # selects the entire  last row of the mesh
 Xh[:, 0] = 20             # selects the entire first column of the mesh
-Xh[:, n-1] = 20           # selects the entire last column of the mesh
+Xh[:, n-1] = 20
 
 print(Fore.LIGHTMAGENTA_EX + "mesh after Boundary condition:" + Style.RESET_ALL)
 print(Xh)
@@ -111,8 +115,8 @@ print(Fore.LIGHTMAGENTA_EX + "final mesh after evaluation:" + Style.RESET_ALL)
 print(zeta)
 
 #plotting out the graph/mesh
-x = np.arange(0, n, 1)
-y = np.arange(0, n, 1)
+x = np.arange(0, 1, 0.1)
+y = np.arange(0, 1, 0.1)
 X, Y = np.meshgrid(x, y)
 Z = zeta
 plt.pcolormesh(X, Y, Z, shading='auto',cmap='viridis')
