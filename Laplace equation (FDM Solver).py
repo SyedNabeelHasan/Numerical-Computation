@@ -50,7 +50,7 @@ print(Fore.LIGHTMAGENTA_EX + "The equations: " + Style.RESET_ALL)
 eqs = []
 for io in range(1, n-1,1):
     for jo in range(1, n-1,1):
-        eq = -4*(Xh[io,jo]) + Xh[io-1,jo] + Xh[io+1,jo] + Xh[io,jo-1] + Xh[io,jo+1] 
+        eq = -4*(Xh[io,jo]) + Xh[io-1,jo] + Xh[io+1,jo] + Xh[io,jo-1] + Xh[io,jo+1]     # Laplace fdm iterative formula
         eqs.append(eq)
         sp.pretty_print(eq)
 
