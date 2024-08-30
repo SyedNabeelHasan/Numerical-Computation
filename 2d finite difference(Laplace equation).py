@@ -6,23 +6,27 @@ from colorama import Fore, Style, init
 
 
 start_time = time.time()
-n = 50 # mesh size (don't exceed 1000)
+h = 0.01    # lower the h higher the mesh size
+b = 1
+a = 0
+n = int((b-a)/h)    # mesh size (try don't exceed 1000)
+print(n)
 
 # Initialize the mesh with 20 degrees
-mesh = np.zeros((n, n)) + 20
+mesh = np.zeros((n, n)) + 0
 
 print(Fore.LIGHTRED_EX + "Initial mesh:" + Style.RESET_ALL)
 print(mesh)
 
 # Define the x and y coordinates
-x = np.arange(0, n, 1)
-y = np.arange(0, n, 1)
+x = np.arange(0, 1, h)
+y = np.arange(0, 1, h)
 
 # Set boundary values
-mesh[0,:] = 700              # selects the entire first row of the mesh
-#mesh[n-1, :] = 200             # selects the entire  last row of the mesh
-#mesh[:, 0] = 700              # selects the entire first column of the mesh
-#mesh[:, n-1] = 700          # selects the entire  last column of the mesh
+mesh[0,:] = 1000             # selects the entire first row of the mesh
+mesh[n-1, :] = 1000          # selects the entire  last row of the mesh
+mesh[:, 0] = 950        # selects the entire first column of the mesh
+mesh[:, n-1] = 1000          # selects the entire  last column of the mesh
 
 
 print(Fore.LIGHTRED_EX + "Mesh with boundary values:" + Style.RESET_ALL )
@@ -52,3 +56,4 @@ plt.colorbar(label='Temperature')
 #plt.grid(True)
 plt.title("Temperature Distribution")
 plt.show()
+
