@@ -6,7 +6,7 @@ from colorama import Fore, Style, init
 
 
 start_time = time.time()
-h = 0.01    # lower the h higher the mesh size
+h = 0.02    # lower the h higher the mesh size
 b = 1
 a = 0
 n = int((b-a)/h)    # mesh size (try don't exceed 1000)
@@ -19,21 +19,21 @@ print(Fore.LIGHTRED_EX + "Initial mesh:" + Style.RESET_ALL)
 print(mesh)
 
 # Define the x and y coordinates
-x = np.arange(0, 1, h)
-y = np.arange(0, 1, h)
+x = np.arange(a, b, h)
+y = np.arange(a, b, h)
 
 # Set boundary values
-mesh[0,:] = 1000             # selects the entire first row of the mesh
-mesh[n-1, :] = 1000          # selects the entire  last row of the mesh
-mesh[:, 0] = 950        # selects the entire first column of the mesh
-mesh[:, n-1] = 1000          # selects the entire  last column of the mesh
+mesh[0,:] = 100             # selects the entire first row of the mesh
+mesh[n-1, :] = 0          # selects the entire  last row of the mesh
+mesh[:, 0] = 0        # selects the entire first column of the mesh
+mesh[:, n-1] = 0          # selects the entire  last column of the mesh
 
 
 print(Fore.LIGHTRED_EX + "Mesh with boundary values:" + Style.RESET_ALL )
 print(mesh)
 
 # Iterate to solve the Laplace equation
-for _ in range(1000):  # Number of iterations
+for _ in range(10000):  # Number of iterations
     u = mesh.copy()
     for i in range(1, n-1,1):
         for j in range(1, n-1,1):
@@ -56,4 +56,3 @@ plt.colorbar(label='Temperature')
 #plt.grid(True)
 plt.title("Temperature Distribution")
 plt.show()
-
