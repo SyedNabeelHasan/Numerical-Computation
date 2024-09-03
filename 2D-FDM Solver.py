@@ -6,9 +6,10 @@ from colorama import Fore, Style, init
 
 upperlimit = 1
 lowerlimit = 0
-h = 0.1
+h = 0.083
 
 n = int((upperlimit-lowerlimit)/h)      #(for now dont exceed mesh size more than 12)
+
 print(n)
 # mesh genration with no initial value
 mesh = []
@@ -50,7 +51,7 @@ print(Fore.LIGHTMAGENTA_EX + "The equations: " + Style.RESET_ALL)
 eqs = []
 for io in range(1, n-1,1):
     for jo in range(1, n-1,1):
-        eq = -4*(Xh[io,jo]) + Xh[io-1,jo] + Xh[io+1,jo] + Xh[io,jo-1] + Xh[io,jo+1]     # Laplace fdm iterative formula
+        eq = -4*(Xh[io,jo]) + Xh[io-1,jo] + Xh[io+1,jo] + Xh[io,jo-1] + Xh[io,jo+1] 
         eqs.append(eq)
         sp.pretty_print(eq)
 
@@ -62,7 +63,7 @@ for a in range(0,len(eqs),1):
     A_sub2 = []
     for b in range(0,len(u),1):
         e = (u[b])
-        ef = expression.coeff(e)
+        ef = expression.coeff(e) + 0.0000000001
         #print(e,ef)
         A_sub2.append(ef)
     A_sub1.append(A_sub2)
@@ -76,6 +77,7 @@ print("")
 #converting matrix into numpy operatable form
 A_np = np.array(A, dtype=float)
 B_np = np.array(B, dtype=float)
+
 print(Fore.LIGHTMAGENTA_EX + "matrix A:" + Style.RESET_ALL)
 print(A_np)
 print(Fore.LIGHTMAGENTA_EX + "matrix B:" + Style.RESET_ALL)
@@ -115,8 +117,8 @@ print(Fore.LIGHTMAGENTA_EX + "final mesh after evaluation:" + Style.RESET_ALL)
 print(zeta)
 
 #plotting out the graph/mesh
-x = np.arange(0, 1, 0.1)
-y = np.arange(0, 1, 0.1)
+x = np.arange(lowerlimit, upperlimit, h)
+y = np.arange(lowerlimit, upperlimit, h)
 X, Y = np.meshgrid(x, y)
 Z = zeta
 plt.pcolormesh(X, Y, Z, shading='auto',cmap='viridis')
