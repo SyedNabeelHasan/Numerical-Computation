@@ -63,7 +63,7 @@ for a in range(0,len(eqs),1):
     A_sub2 = []
     for b in range(0,len(u),1):
         e = (u[b])
-        ef = expression.coeff(e) + 0.0000000001
+        ef = expression.coeff(e)
         #print(e,ef)
         A_sub2.append(ef)
     A_sub1.append(A_sub2)
