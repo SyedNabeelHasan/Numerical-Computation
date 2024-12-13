@@ -9,11 +9,12 @@ st = time.time()
 
 upperlimit = 1
 lowerlimit = 0
-h = 0.02
+h = 0.08
 
 
 n = int((upperlimit-lowerlimit)/h)      #(for now dont exceed mesh size more than 12)
-print(n)
+total_variables = (n-2)*(n-2)
+print(n,"x",n,"and total number of variables = ",total_variables)
 
 dc = time.time()
 # mesh genration with no initial value
@@ -71,7 +72,7 @@ for a in range(0,len(eqs),1):
     expression = eqs[a]
     A_sub2 = []
     for b in range(0,len(u),1):
-        e = (u[b])
+        e = u[b]
         ef = expression.coeff(e) 
         #print(e,ef)
         A_sub2.append(ef)
@@ -79,6 +80,7 @@ for a in range(0,len(eqs),1):
     coeff_dict = expression.as_coefficients_dict()
     constant_term = coeff_dict[1]
     B_sub1.append(constant_term*(-1))
+    
 A = np.array(A_sub1)
 B = np.array(B_sub1)
 print("")
@@ -128,7 +130,7 @@ if(len(big_check) == len(eqs)):
     xsol = [x0]
 
     # Iterative loop
-    for l in range(0, 220):
+    for l in range(0, 100000000000000):
         xzee = s_inv@(B_np-(T@xsol[l])) 
         xsol.append(xzee)
 
@@ -143,7 +145,9 @@ xv = time.time() ############################
 
 # Print the latest solution
 print(Fore.YELLOW + "Final-Solution" + Style.RESET_ALL)
+d = len(xsol)
 print(xsol[-1])
+
 
 et = time.time()
 print(Fore.BLUE + "mesh genration time = " + str(cd-dc) + Style.RESET_ALL)
@@ -152,3 +156,35 @@ print(Fore.BLUE + "matrix formation time = " + str(bn-nb) + Style.RESET_ALL)
 print(Fore.BLUE + "SDD validation time = " + str(cf-fc) + Style.RESET_ALL)
 print(Fore.BLUE + "Gauss-Siedel evaluation time = " + str(xv-vx) + Style.RESET_ALL)
 print(Fore.BLUE + "total time for evaluation = " + str(et-st) + Style.RESET_ALL)
+
+# contour-plot generation
+array = np.array(xsol[-1])
+matrix2d =  array.reshape(n-2,n-2)
+print("")
+print(matrix2d)
+x = np.arange(lowerlimit, upperlimit, (upperlimit-lowerlimit)/(n-2))
+y = np.arange(lowerlimit, upperlimit, (upperlimit-lowerlimit)/(n-2))
+X, Y = np.meshgrid(x, y)
+Z = matrix2d
+plt.pcolormesh(X, Y, Z, shading='auto',cmap='viridis')
+plt.colorbar(label='Temperature')
+#plt.grid(True)
+plt.title("Temperature Distribution")
+plt.show()
+
+
+# element-wise journey check for iteration
+db = []
+po = 32  # select the element from xsol 1d array
+for kj in range (0,l,1):
+    for pj in range (po,po+1,1):
+        wq = xsol[kj][po]
+        db.append(wq)
+
+cv = []
+for itn in range(0,l,1):
+    cv.append(itn)
+plt.plot(cv,db)
+plt.grid(True)
+plt.title("Iteration-wise temperature change on an element")
+plt.show()
