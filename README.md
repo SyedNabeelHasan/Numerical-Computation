@@ -1,21 +1,50 @@
-# Numerical-Computation
-The repository contains solution to steady-state heat conduction PDEs as well as 2D-transient heat conduction by the name of T2dHC solver (with multi-independent point BCs and domain inversion) .The equation are solved using explicit(2D-FDM explicit.py) and implicit(2D-FDM implicit solver.py) approach. T2dHC solver (with multi-independent point BCs and domain inversion) is solved using implicit approach .The PDEs are modelled using finite difference method and then solved further. The implict apprach solves the set of linear equation using Gauss-Seidel method to avoid the problem of sparse matrix.
+🔬 Numerical Solvers for Heat Transfer and Incompressible Flow
+This repository provides robust, Python-based numerical solvers for steady-state and 2D transient heat conduction partial differential equations (PDEs), along with a newly added module for incompressible fluid flow simulation. These solvers are tailored for students, researchers, and engineers engaged in heat transfer, fluid mechanics, and scientific computation.
 
-T2dHC solver will require a little learning on how to operate,therefore I have put comments to guide user of what to change and what not to. But if then also anyone is not able to operate the solver so feel free to contact me at nabeelhasan661@gmail.com.
+🧠 Core Solvers
+⚡ T2dHC Solver (2D Transient Heat Conduction)
+Built using the finite difference method (FDM).
 
-Gauss-Seidel solver:
-Numpy and Sympy libraries do carry some solvers that are really good at solving system of linear equation. But they suffer with problems where system of linear equations becomes sparse; making the co-efficient of matrix singular i.e det(A) = 0. 
-  Thus this solver here is capable of solving normal system of linear equations as well as system of linear equations equations that generate sparse matrices. This solver also allows the user to set the tolerance limit easily (currently set to 1.e-15).
+Supports multi-point independent boundary conditions and domain inversion.
 
-9th March 2025 : I have also added a new solver for solving the incompressible fluid flows problem.
-Now the repository heavely deals with numerical computation problems of heat-transfer and incompressible flows; using python based solvers. Below are the few results from these solvers.
+Available in both:
 
-More new updated and advanced version with user friendly system of editing BCs will be uploaded in near future.😀
+Explicit scheme (2D-FDM explicit.py)
 
-Results from : T2dHC solver (with unit sized square changing domain)
-https://github.com/user-attachments/assets/07b16b44-2d3a-4782-85a1-2b0dc5e3165f
-Results from : Pressure correction poison equation solver model 3
+Implicit scheme (2D-FDM implicit solver.py)
+— utilizes a custom Gauss-Seidel iterative solver for handling sparse and dense systems efficiently.
 
-![Figure_1](https://github.com/user-attachments/assets/7f078d5e-1e74-419e-9066-6baae3a7bed6)
-Ghia et al data comparison (just for refrence)
-![Screenshot 2025-04-03 005621](https://github.com/user-attachments/assets/89b862be-c90c-4753-bffb-9ddfd7a64ada)
+🧮 Gauss-Seidel Linear System Solver
+Designed to bypass limitations of built-in libraries like NumPy/SymPy when dealing with sparse matrices.
+
+Capable of solving systems where det(A) ≈ 0, ensuring robustness.
+
+Offers adjustable tolerance settings (default 1e-15) for fine-grained accuracy control.
+
+🌊 Incompressible Flow Solver (Added: March 9, 2025)
+Solves pressure Poisson equation and velocity fields via pressure correction techniques.
+
+Now includes Model 3, our fastest and most optimized version, built over the foundations of Model 1 and Model 2.
+
+Developed to enhance the repository’s coverage from thermal problems to core CFD simulations.
+
+🛠 How to Use
+Each script is documented with detailed in-line comments. Users can modify parameters such as domain size, time steps, and boundary conditions easily by following the provided guidelines.
+
+If you face difficulties using any solver, you're welcome to contact me at nabeelhasan661@gmail.com.
+
+📊 Sample Results
+T2dHC Solver:
+Simulations over a unit-sized square domain with varied boundary conditions.
+📎 View Sample Output
+
+Pressure Correction Poisson Solver (Model 3):
+Validated against benchmark data (e.g., Ghia et al.).
+✅ Fastest solver among Model 1, 2, and 3.
+
+🚀 Coming Soon
+A user-friendly interface for editing boundary conditions and initial conditions interactively.
+
+Expanded solver suite with visual outputs, improved post-processing, and integration with Matplotlib or ParaView.
+
+Performance enhancements for large-scale simulations and real-time debugging support.
