@@ -22,7 +22,8 @@ Currently the repository offers:
 >
 
 T2dhC solver result video:
-https://github.com/user-attachments/assets/8d7f599f-9086-443e-8ea6-02892db52980
+![Figure 1 2025-01-13 00-30-05](https://github.com/user-attachments/assets/9598ae72-4ac6-437e-abbd-3723330391ac)
+
 
 
 Results of Pressure correction poisson equation model 3: 
