@@ -1,7 +1,7 @@
 
 # Diffusion Dynamics 
 
-Diffusion dynamics is a python based finite difference solver package/repo that allows a user to solve complex physical systems based on advnaced physics & mathematics.  
+Diffusion dynamics is a python based finite difference solver package/repo that allows a user to solve complex physical problems based on advnaced physics & mathematics.  
 
 Currently the repository offers:
 > Gauss-Siedel solver : 
