@@ -22,7 +22,8 @@ Currently the repository offers:
 >
 
 T2dhC solver result video:
-![Figure 1 2025-01-13 00-30-05](https://github.com/user-attachments/assets/9598ae72-4ac6-437e-abbd-3723330391ac)
+![Figure 1 2025-01-13 00-30-05](https://github.com/user-attachments/assets/692d5c40-0bd6-48fb-b02d-049f452df5bb)
+
 
 
 
