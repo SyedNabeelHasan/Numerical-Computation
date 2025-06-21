@@ -25,6 +25,7 @@ for i in range(start_point,end_point,1):
 
 
 time = []
+empty_file = []
 for do in dir:
     print(do)
     frame = []
@@ -40,17 +41,24 @@ for do in dir:
                 data.append(values)
             except ValueError:
                 continue
+    if not data:
+        print(Fore.RED + f"empty file {do} !!!" + Style.RESET_ALL)
+        empty_file.append(do)
+        data.append("1")
 
     # Convert to pandas DataFrame
     df = pd.DataFrame(data)
     # print(data[0])
     columns = list(zip(*data))
-
-    for i in range(0,len(data[0]),1):
-        frame.append(columns[i])
-        # print(columns[i][1])
-
-    time.append(frame)
+    if(len(data[0]) > 1):
+        for i in range(0,len(data[0]),1):
+            frame.append(columns[i])
+            # print(columns[i][1])
+        time.append(frame)
+    elif (len(data[0]) < 1):
+        pass
+    
+    print(Fore.GREEN + "complete" + Style.RESET_ALL)
 
 
 
