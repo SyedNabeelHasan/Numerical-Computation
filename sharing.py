@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 vertex = []
 line = []  # Make sure this is defined globally
 boundary_coordinates_1 = []
-
+brk_id = []
 # Setup figure
 fig, ax = plt.subplots()
 ax.set_title("Draw polygons (1), circles (2), arcs (3). Press 'q' to quit.")
@@ -110,21 +110,34 @@ def onkey(event):
         except:
             print("Invalid input for arc.")
 
-
     elif event.key == 'i':
         try:
-            input_str = simpledialog.askstring("Manual Input", "Enter points (e.g., 0,0 1,0 1,1 0,1):")
+            input_str = simpledialog.askstring("Manual Input", "Enter points (e.g., 0,0 1,0 1,1 0,1 break):")
             parts = input_str.strip().split()
-            pts = [tuple(map(float, p.strip().split(','))) for p in parts]
-            draw_polygon(pts, style='g-')
 
-            line.extend(pts)  # Appending coordinates to the 'line' array
-            vertex.append(('polygon', pts))  # optional: keep storing in vertex if needed
+            pts = []
+            
 
+            for i, p in enumerate(parts):
+                if p.lower() == "break":
+                    pts.append("BREAK")
+                    brk_id.append(len(pts) - 1)  # Position of "BREAK" in pts
+                    break  # Optional: stop input here
+                else:
+                    x, y = map(float, p.strip().split(','))
+                    pts.append((x, y))
+
+            # Only draw valid points, ignore "BREAK"
+            clean_pts = [p for p in pts if p != "BREAK"]
+            draw_polygon(clean_pts, style='g-')
+
+            line.extend(pts)  # Keep raw data, including "BREAK"
+            vertex.append(('polygon', clean_pts))  # Store clean version
             print("Line data updated:", line)
+            print("BREAK index positions:", brk_id)
+
         except Exception as e:
             print("Invalid input for manual polygon:", e)
-
 # Connect events
 fig.canvas.mpl_connect('button_press_event', onclick)
 fig.canvas.mpl_connect('key_press_event', onkey)
@@ -138,69 +151,85 @@ del_h = 0.1
 for i in range(0, len(line)-1, 1):
     X1, X2 = line[i][0], line[i+1][0]
     Y1, Y2 = line[i][1], line[i+1][1]
-
-    boundary_coordinates_1.append((X1,Y1))
     
-    if abs(X2 - X1) < 1e-5:  # Vertical line
-        # Use np.arange on Y, keep X constant        
-        if (Y2 > Y1):
-            for y in np.arange(Y1, Y2, del_h):
-                boundary_coordinates_1.append((X1, y))
-        elif (Y2 < Y1):
-            for y in np.arange(Y1, Y2, -del_h):
-                boundary_coordinates_1.append((X1, y))
+    
+    if ((X1 != "B" or Y1 !="R") and (X2 != "B" or Y2 !="R") ):
+        boundary_coordinates_1.append((X1,Y1))
+        print("👺: ",X1,Y1,X2,Y2)
+        if abs(X2 - X1) < 1e-5:  # Vertical line
+            # Use np.arange on Y, keep X constant        
+            if (Y2 > Y1):
+                for y in np.arange(Y1, Y2, del_h):
+                    boundary_coordinates_1.append((X1, y))
+            elif (Y2 < Y1):
+                for y in np.arange(Y1, Y2, -del_h):
+                    boundary_coordinates_1.append((X1, y))
 
+        else:
+            slope = (Y2 - Y1) / (X2 - X1)
+            if (Y2 > Y1):
+                for y in np.arange(Y1 + del_h, Y2, del_h ):
+                    X = (((y - Y1)/slope) + X1)
+                    boundary_coordinates_1.append((X, y))
+                    print((X,y))
+                    
+            elif (Y1 > Y2):
+                for y in np.arange(Y1-del_h, Y2, -del_h):
+                    X = (((y - Y1)/slope) + X1)
+                    boundary_coordinates_1.append((X, y))
+                    
+            elif (slope == 0):
+                if(X2>X1):
+                    for x in np.arange(X1, X2, del_h):
+                        boundary_coordinates_1.append((x,Y1))
+                elif(X1>X2):
+                    for x in np.arange(X1, X2, -del_h):
+                        boundary_coordinates_1.append((x,Y1))                
     else:
-        slope = (Y2 - Y1) / (X2 - X1)
-        if (Y2 > Y1):
-            for y in np.arange(Y1 + del_h, Y2, del_h ):
-                X = (((y - Y1)/slope) + X1)
-                boundary_coordinates_1.append((X, y))
-                print((X,y))
-                
-        elif (Y1 > Y2):
-            for y in np.arange(Y1-del_h, Y2, -del_h):
-                X = (((y - Y1)/slope) + X1)
-                boundary_coordinates_1.append((X, y))
-                
-        elif (slope == 0):
-            if(X2>X1):
-                for x in np.arange(X1, X2, del_h):
-                    boundary_coordinates_1.append((x,Y1))
-            elif(X1>X2):
-                for x in np.arange(X1, X2, -del_h):
-                    boundary_coordinates_1.append((x,Y1))                
-    
+        pass
 
           
-
-# calculation for circle 
-
 
 # Round the result
 rounded_points = [(round(float(x), 8), round(float(y), 8)) for x, y in boundary_coordinates_1]
 unique_rounded_points = list(set(rounded_points))
-#-----vertex odd-even check-----#
-beta = 0 
-vertices = line.copy()
-vertices.pop(len(line)-1)
-print(vertices)
 
-even_vertex = []
-for i in range(0,len(vertices),1):
-    if(i < len(vertices)-1):
-        if (vertices[i-1][1] < vertices[i][1] and vertices[i+1][1] < vertices[i][1]):
-            even_vertex.append(vertices[i])
-        elif(vertices[i-1][1] > vertices[i][1] and vertices[i+1][1] > vertices[i][1]):
-            even_vertex.append(vertices[i])
-    if(i==len(vertices)-1):
-        if (vertices[i-1][1] < vertices[i][1] and vertices[beta][1] < vertices[i][1]):
-            even_vertex.append(vertices[i])
-        elif(vertices[i-1][1] > vertices[i][1] and vertices[beta][1] > vertices[i][1]):
-            even_vertex.append(vertices[i])
+s,d = zip(*unique_rounded_points)
+plt.scatter(s,d , s=2)
+plt.show()
+#-----vertex odd-even check-----#
+for ip in range(0,len(brk_id),1):
     
-for im in range(0,len(even_vertex),1):
-    unique_rounded_points.append(even_vertex[im]) 
+    if (ip>0):
+        end_point = brk_id[ip-1] + brk_id[ip] +1
+        start_point = brk_id[ip-1] + 1
+    elif(ip==0):
+        start_point = 0
+        end_point = brk_id[ip]
+    vertices = []
+    for ihm in range(start_point,end_point,1):
+        vertices.append(line[ihm])
+
+    beta = 0 
+
+    vertices.pop(len(vertices)-1)
+    print(vertices)
+
+    even_vertex = []
+    for i in range(0,len(vertices),1):
+        if(i < len(vertices)-1):
+            if (vertices[i-1][1] < vertices[i][1] and vertices[i+1][1] < vertices[i][1]):
+                even_vertex.append(vertices[i])
+            elif(vertices[i-1][1] > vertices[i][1] and vertices[i+1][1] > vertices[i][1]):
+                even_vertex.append(vertices[i])
+        if(i==len(vertices)-1):
+            if (vertices[i-1][1] < vertices[i][1] and vertices[beta][1] < vertices[i][1]):
+                even_vertex.append(vertices[i])
+            elif(vertices[i-1][1] > vertices[i][1] and vertices[beta][1] > vertices[i][1]):
+                even_vertex.append(vertices[i])
+    
+    for im in range(0,len(even_vertex),1):
+        unique_rounded_points.append(even_vertex[im]) 
 
 print("even: ",even_vertex)
 
@@ -208,9 +237,7 @@ print("----------------------------------------")
 print("u: ",unique_rounded_points)
 print("l: ",line)
 
-s,d = zip(*unique_rounded_points)
-plt.scatter(s,d , s=2)
-plt.show()
+
 #############################################################################################
 points = []
 h = del_h 
