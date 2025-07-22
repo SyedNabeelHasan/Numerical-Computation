@@ -210,6 +210,7 @@ s,d = zip(*unique_rounded_points)
 plt.scatter(s,d , s=2)
 plt.show()
 #-----vertex odd-even check-----#
+Even_vertex = []
 for ip in range(0,len(brk_id),1):
     
     if (ip>0):
@@ -252,6 +253,7 @@ for ip in range(0,len(brk_id),1):
     
     for im in range(0,len(even_vertex),1):
         unique_rounded_points.append(even_vertex[im]) 
+        Even_vertex.append(even_vertex[im])
  
 print("even: ",even_vertex)
 
@@ -317,7 +319,7 @@ if (len(rounded_horizontal) !=0):
     g, h = zip(*rounded_horizontal)
 c, d = zip(*points)
 a, b = zip(*filtered_interior_x)
-yl,u = zip(*even_vertex)
+yl,u = zip(*Even_vertex)
 
 
 # Plotting
