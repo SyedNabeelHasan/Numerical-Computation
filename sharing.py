@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 import time
 from colorama import Fore, Style, init
 import torch
+
 device = torch.device("cuda")  # assume GPU per your request
 
 print("")
@@ -19,6 +20,7 @@ boundary_coordinates_1 = []
 horizontal = []
 vertical = []
 brk_id = []
+brk_id_circle =[]
 # Setup figure
 fig, ax = plt.subplots()
 ax.set_title("Draw polygons (1), circles (2), arcs (3). Press 'q' to quit.")
@@ -96,7 +98,7 @@ def onkey(event):
             for p in parts:
                 if p.lower() == "break":
                     circles.append("BREAK")
-                    brk_id.append(len(circles) - 1)
+                    brk_id_circle.append(len(circles) - 1)
                     break  # optional: stop further input
                 else:
                     cx, cy, r = map(float, p.strip().split(','))
@@ -154,66 +156,91 @@ plt.show()
 print(line)
 
 # Calcuation of mid-boundary coordinates
-del_h = 0.02
+# Note: We must try to avoid giving geometries smaller than mesh element size
+
+del_h = 0.01
 tol = 8
 tolerance = 1e-8
 space_laps = 1e-4    # (set your input precision)
 
 cad_st = time.time()
 # calculation for line
-for i in range(0, len(line)-1, 1):
-    X1, X2 = line[i][0], line[i+1][0]
-    Y1, Y2 = line[i][1], line[i+1][1]
-    
-    
-    if ((X1 != "B" or Y1 !="R") and (X2 != "B" or Y2 !="R") ):
+if (len(line)!=0):
+    for i in range(0, len(line)-1, 1):
+        X1, X2 = line[i][0], line[i+1][0]
+        Y1, Y2 = line[i][1], line[i+1][1]
         
         
-        if (abs(X2 - X1) < 1e-5):  # consider vertical line
-            # Use np.arange on Y, keep X constant        
-            if (Y2 > Y1):
-                for y in np.arange(Y1, Y2, space_laps):
-                    boundary_coordinates_1.append((X1, y))
-                    vertical.append((X1,y))
-            elif (Y2 < Y1):
-                for y in np.arange(Y1, Y2, -(space_laps)):
-                    boundary_coordinates_1.append((X1, y))
-                    vertical.append((X1,y))
+        if ((X1 != "B" or Y1 !="R") and (X2 != "B" or Y2 !="R") ):
+            
+            
+            if (abs(X2 - X1) < 1e-5):  # consider vertical line
+                # Use np.arange on Y, keep X constant        
+                if (Y2 > Y1):
+                    for y in np.arange(Y1, Y2, space_laps):
+                        boundary_coordinates_1.append((X1, y))
+                        vertical.append((X1,y))
+                elif (Y2 < Y1):
+                    for y in np.arange(Y1, Y2, -(space_laps)):
+                        boundary_coordinates_1.append((X1, y))
+                        vertical.append((X1,y))
 
 
-        elif (abs(Y2-Y1) < 1e-5):     # consider horizontal line (simply these lines are not required in the algorithim to define if a point is in or out of domain.
-            boundary_coordinates_1.append((X1,Y1))
-            if(X2>X1):
-                for x in np.arange(X1,X2,space_laps):
-                    horizontal.append((x,Y1))
-                
-
-            elif(X1>X2):
-                boundary_coordinates_1.append((X2,Y2))
-                for x in np.arange(X1,X2,-(space_laps)):
-                    horizontal.append((x,Y1))
-
-        else:
-            slope = (Y2 - Y1) / (X2 - X1)
-            if (Y2 > Y1):
-                print("")
-                for y in np.arange(Y1 , Y2, space_laps ):
-                    X = (((y - Y1)/slope) + X1)
-                    boundary_coordinates_1.append((X, y))
-                    #print("",(X,y))
-        
-            elif (Y1 > Y2):
-                print("")
-                for y in np.arange(Y1, Y2, -(space_laps)):
-                    X = (((y - Y1)/slope) + X1)
-                    boundary_coordinates_1.append((X, y))
-                    #print("🕊️",(X,y))
+            elif (abs(Y2-Y1) < 1e-5):     # consider horizontal line (simply these lines are not required in the algorithim to define if a point is in or out of domain.
+                boundary_coordinates_1.append((X1,Y1))
+                if(X2>X1):
+                    for x in np.arange(X1,X2,space_laps):
+                        horizontal.append((x,Y1))
                     
-                                  
-    else:
-        pass
 
-print(circle)          
+                elif(X1>X2):
+                    boundary_coordinates_1.append((X2,Y2))
+                    for x in np.arange(X1,X2,-(space_laps)):
+                        horizontal.append((x,Y1))
+
+            else:
+                slope = (Y2 - Y1) / (X2 - X1)
+                if (Y2 > Y1):
+                    print("")
+                    for y in np.arange(Y1 , Y2, space_laps ):
+                        X = (((y - Y1)/slope) + X1)
+                        boundary_coordinates_1.append((X, y))
+                        #print("",(X,y))
+            
+                elif (Y1 > Y2):
+                    print("")
+                    for y in np.arange(Y1, Y2, -(space_laps)):
+                        X = (((y - Y1)/slope) + X1)
+                        boundary_coordinates_1.append((X, y))
+                        #print("🕊️",(X,y))
+                        
+                                    
+        else:
+            pass
+
+if (len(circle)!=0):
+    for i in range(0,len(circle),1):
+        cx=circle[i][0]
+        cy=circle[i][1]
+        r= circle[i][2]
+        #print("@",cx,cy,r)
+        if ((cx != "B" and cy !="R" and r != "E")):   
+            #print("🎶",cx,cy,r)
+            for i in np.arange((cy-r),(cy+r),space_laps):
+                io = i - cy
+                rounded_io = round(io,8)
+                theta=np.arcsin(rounded_io/r)
+                r_the=round(theta,8)
+                x=cx + r*np.cos(theta)
+                y=cy + r*np.sin(theta)
+                ###mirror####
+                x2=cx-r*np.cos(theta)
+                y2=cy-r*np.sin(theta)
+                #print( "👍",rounded_io,"",theta,"",x,"",y)
+                #print(x,"",y)
+                #print(x2,"",y2)
+                boundary_coordinates_1.append((x,y))
+                boundary_coordinates_1.append((x2,y2))       
 
 # Round the result
 rounded_points = [(round(float(x), tol), round(float(y), tol)) for x, y in boundary_coordinates_1]
@@ -233,55 +260,64 @@ plt.show()
 print(Fore.LIGHTMAGENTA_EX + "Starting meshing process..." + Style.RESET_ALL)
 mesh_st = time.time()
 Even_vertex = []
-for ip in range(0,len(brk_id),1):
-    
-    if (ip>0):
-        end_point = np.sum(brk_id[:ip+1]) + ip
-        start_point = np.sum([brk_id[:ip]]) + ip
-    elif(ip==0):
-        start_point = 0
-        end_point = brk_id[ip]
-    vertices = []
-    for ihm in range(start_point,end_point,1):
-        vertices.append(line[ihm])
-
-    beta = 0 
-
-    vertices.pop(len(vertices)-1)      #*******************************************************************************************
-    print(vertices)
-
-    even_vertex = []
-    for i in range(0,len(vertices),1):
-        if(i < len(vertices)-1):
-            if (vertices[i-1][1] < vertices[i][1] and vertices[i+1][1] < vertices[i][1]):
-                even_vertex.append(vertices[i])
-            elif(vertices[i-1][1] > vertices[i][1] and vertices[i+1][1] > vertices[i][1]):
-                even_vertex.append(vertices[i])
-            elif((abs(vertices[i-1][0]-vertices[i][0]) < 1e-5) and (abs(vertices[i+1][1]-vertices[i][1]) < 1e-5)   or (abs(vertices[i+1][0]-vertices[i][0]) < 1e-5) and (abs(vertices[i-1][1]-vertices[i][1]) < 1e-5) ): # right angle pair
-                if( (vertices[i-1][1] > vertices[i][1]) and (vertices[i][1] > vertices[i+2][1])):
-                    even_vertex.append(vertices[i])
-                elif((vertices[i-2][1] < vertices[i][1]) and (vertices[i+1][1] > vertices[i][1])):
-                    even_vertex.append(vertices[i])
-                else:
-                    pass
-            else:
-                pass   
+if (len(line)!=0):
+    for ip in range(0,len(brk_id),1):
         
-        if(i==len(vertices)-1): #****************************************************************************************************
-            if (vertices[i-1][1] < vertices[i][1] and vertices[beta][1] < vertices[i][1]):
-                even_vertex.append(vertices[i])
-            elif(vertices[i-1][1] > vertices[i][1] and vertices[beta][1] > vertices[i][1]):
-                even_vertex.append(vertices[i]) #*************************************************************************************
+        if (ip>0):
+            end_point = np.sum(brk_id[:ip+1]) + ip
+            start_point = np.sum([brk_id[:ip]]) + ip
+        elif(ip==0):
+            start_point = 0
+            end_point = brk_id[ip]
+        vertices = []
+        for ihm in range(start_point,end_point,1):
+            vertices.append(line[ihm])
+
+        beta = 0 
+
+        vertices.pop(len(vertices)-1)      #*******************************************************************************************
+        print(vertices)
+
+        even_vertex = []
+        for i in range(0,len(vertices),1):
+            if(i < len(vertices)-1):
+                if (vertices[i-1][1] < vertices[i][1] and vertices[i+1][1] < vertices[i][1]):
+                    even_vertex.append(vertices[i])
+                elif(vertices[i-1][1] > vertices[i][1] and vertices[i+1][1] > vertices[i][1]):
+                    even_vertex.append(vertices[i])
+                elif((abs(vertices[i-1][0]-vertices[i][0]) < 1e-5) and (abs(vertices[i+1][1]-vertices[i][1]) < 1e-5)   or (abs(vertices[i+1][0]-vertices[i][0]) < 1e-5) and (abs(vertices[i-1][1]-vertices[i][1]) < 1e-5) ): # right angle pair
+                    if( (vertices[i-1][1] > vertices[i][1]) and (vertices[i][1] > vertices[i+2][1])):
+                        even_vertex.append(vertices[i])
+                    elif((vertices[i-2][1] < vertices[i][1]) and (vertices[i+1][1] > vertices[i][1])):
+                        even_vertex.append(vertices[i])
+                    else:
+                        pass
+                else:
+                    pass   
+            
+            if(i==len(vertices)-1): #****************************************************************************************************
+                if (vertices[i-1][1] < vertices[i][1] and vertices[beta][1] < vertices[i][1]):
+                    even_vertex.append(vertices[i])
+                elif(vertices[i-1][1] > vertices[i][1] and vertices[beta][1] > vertices[i][1]):
+                    even_vertex.append(vertices[i]) #*************************************************************************************
+        
+        for im in range(0,len(even_vertex),1):
+            unique_rounded_points.append(even_vertex[im]) 
+            Even_vertex.append(even_vertex[im])
     
-    for im in range(0,len(even_vertex),1):
-        unique_rounded_points.append(even_vertex[im]) 
-        Even_vertex.append(even_vertex[im])
- 
-print("even: ",even_vertex)
+    print("even: ",Even_vertex)
 
 print("----------------------------------------")
 # print("u: ",unique_rounded_points)
 # print("l: ",line)
+if(len(circle)!=0):
+    for i in range(0,len(circle),1):
+        cx=circle[i][0]
+        cy=circle[i][1]
+        r= circle[i][2]
+        if ((cx != "B" and cy !="R" and r != "E")):
+            unique_rounded_points.append((cx,cy+r))
+            unique_rounded_points.append((cx,cy-r))
 
 
 #############################################################################################
@@ -334,22 +370,22 @@ filtered_interior_x = [point for point in interior_points_x if point not in uniq
 print("Done")
 filtered_exterior = list(set(points) - set(filtered_interior_x))  # All_the_points - interior_points = pureExteriorPoints + boundaryPoints
 
+
+unique_rounded_points_tenosr = torch.tensor(unique_rounded_points, dtype=torch.float64, device=device)
 fill = []
 for Y in np.arange(0,10,del_h):
-    for u in range(0,len(unique_rounded_points),1):
-        if (abs(unique_rounded_points[u][1] - Y) < tolerance):
-            fill.append(unique_rounded_points[u])
-
-# for X in np.arange(0,10,1):
-#     for u in range(0,len(unique_rounded_points),1):
-#         if (abs(unique_rounded_points[u][0] - Y) < tolerance):
-#             fill.append(unique_rounded_points[u])
-
-filtered_exterior_x = list((set(filtered_exterior) | set(rounded_horizontal) |set(fill) )) #  pureExteriorPoints + boundaryPoints + HorizontalPoints
+    mask_unique_rounded_points = torch.abs(unique_rounded_points_tenosr - Y) < tolerance
+    idx = torch.where(mask_unique_rounded_points == True)[0]                   # GPU
+    id = idx.cpu().numpy()
+    if len(id) > 0:
+        for j in range(0,len(id),1):
+            fill.append(unique_rounded_points[id[j]])
+    else:
+        pass
 
 
 
-
+filtered_exterior_x = list((set(filtered_exterior) | set(rounded_horizontal) |set(fill))) #  pureExteriorPoints + boundaryPoints + HorizontalPoints
 
 
 #------------------------------------------------------------------edge detection--------------------------------------------------------#
@@ -357,34 +393,7 @@ print(Fore.LIGHTMAGENTA_EX + "Starting Edge Detection..." + Style.RESET_ALL)
 edge_st = time.time()
 
 ghost_nodes = []
-# first_interface = []
-# for i in range(0,len(filtered_interior_x),1):
 
-#     a1,b1 = filtered_interior_x[i][0],filtered_interior_x[i][1]
-
-#     for j in range(0,len(filtered_exterior_x),1):
-
-#         a2,b2 = filtered_exterior_x[j][0],filtered_exterior_x[j][1]
-#         distance_btw_points = np.sqrt(((a1-a2)**2) + ((b1-b2)**2))
-#         distance = round(distance_btw_points, tol)
-#         #print(distance," ",del_h)
-#         #time.sleep(1)
-
-#         if (abs(distance - del_h) < tolerance ):
-#             ghost_nodes.append((a2,b2))
-#             # first_interface.append((a1,b1))
-#             #print("👍🏼")
-#         else:
-#             pass
-
-# for i in range(0,len(line),1):
-#     X1,Y1 = line[i][0],line[i][1]
-#     X2,Y2 = line[i+1][0],line[i+1][1]
-
-#     for j in range(0,len(ghost_nodes),1):
-#         X0,Y0 = ghost_nodes[j][0],ghost_nodes[j][1]
-        
-    
 A = torch.tensor(filtered_interior_x, dtype=torch.float64, device=device)   # shape (N, 2)
 B = torch.tensor(filtered_exterior_x, dtype=torch.float64, device=device)   # shape (M, 2)
 
@@ -403,13 +412,6 @@ for i in range(len(A)):
     else:
         pass
  
-
-# ghost_nodes_cpu = ghost_nodes.cpu().numpy()          # CPU
-
-
-
-
-
 
 
 edge_et = time.time()
@@ -442,7 +444,7 @@ yama,lama = zip(*ghost_nodes)
 plt.scatter(x, y, color='red', s=1, label='Vertices')       # Red markers
 if (len(rounded_horizontal) !=0):
     plt.scatter(g, h, color='red', s=1, label='Vertices')
-plt.scatter(c, d, color ="blue", s= 5)
+#plt.scatter(c, d, color ="blue", s= 5)
 plt.scatter(a, b, color = "black", s = 5)       # x-marker
 # plt.scatter(g, h, color = "black", s = 5)       # y-marker
 plt.scatter(yama,lama,color = 'green', s = 10)
